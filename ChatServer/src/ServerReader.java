@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
@@ -15,7 +16,7 @@ import java.util.regex.Pattern;
 
 public class ServerReader implements Runnable
 {	
-	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("YYYY:MM:DD:HH:MM:SS");
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
 	private static final String ALLOWED_CHARACTERS = "^[a-zA-Z0-9_]*$";
 	private static final Pattern PATTERN_MATCHER = Pattern.compile(ALLOWED_CHARACTERS);
 	private static final String SERVER_GREETING = "Welcome to the chat server. Enter '/w [username]' to send a private message.";
@@ -49,6 +50,8 @@ public class ServerReader implements Runnable
 		this.output = output;
 		this.usernames = usernames;
 		this.userWriterMap = userWriterMap;
+
+		DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
 		
 		try 
 		{
@@ -232,7 +235,7 @@ public class ServerReader implements Runnable
 				message += String.format("%s ", parsedData[i]);
 		}
 
-		broadcastData = String.format("%d %s %s\r\n", 5, username, message);
+		broadcastData = String.format("%d %s %s %s\r\n", 5, username, getTime(), message);
 
 		sendData();
 	}
@@ -251,7 +254,7 @@ public class ServerReader implements Runnable
 				message += String.format("%s ", parsedData[i]);
 		}
 		
-		broadcastData = String.format("%d %s %s %s\r\n", 6, username, toUser, message);
+		broadcastData = String.format("%d %s %s %s %s\r\n", 6, username, toUser, getTime(), message);
 		
 		sendData();
 	}
@@ -273,7 +276,7 @@ public class ServerReader implements Runnable
 	{
 		if(packetData != null)
 		{
-			System.out.println("Handling read data: " + packetData);
+			System.out.println("SEnding read data: " + packetData);
 			try 
 			{
 				bufferedWriter.write(packetData);
@@ -282,13 +285,13 @@ public class ServerReader implements Runnable
 			catch (IOException e) 
 			{
 				System.out.println("An error occurred while attempting to write to a socket connected to the server.");
-				e.printStackTrace();
+				keepAlive = false;
 			}
 		}
 		
 		if(broadcastData != null)
 		{
-			System.out.println("Handling read broadcast data: " + broadcastData);
+			System.out.println("Sending read broadcast data: " + broadcastData);
 			output.add(broadcastData);
 		}
 	}
@@ -321,6 +324,7 @@ public class ServerReader implements Runnable
 	{
 		Calendar date = Calendar.getInstance();
 		String timeStamp = DATE_FORMAT.format(date.getTime());
+		
 		
 		return timeStamp; 
 	}

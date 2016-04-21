@@ -16,6 +16,7 @@ public class ChatConnect extends JPanel implements ActionListener
 	private static final long serialVersionUID = -1558876937604962498L;
 	private static final String INVALID_USERNAME = "Invalid Username.";
 	private static final String BAD_CONNECTION = "Could not connect to server.";
+	private static final String COMMUNICATION_ERROR = "Could not establish a link with the server.";
 
 	private ChatClientGUI outerFrame;
 	private JTextField usernameTextbox;
@@ -117,10 +118,26 @@ public class ChatConnect extends JPanel implements ActionListener
 			System.out.println("Connected.  SEnding username.");
 
 			chatClient.sendUsername();
-
+			int usernameAttempts = 0;
+			
 			while(null == chatClient.getUsernameAccepted())
 			{
-				System.out.println("Waiting");
+				try 
+				{
+					Thread.sleep(10);
+				} 
+				catch (InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+				
+				usernameAttempts++;
+				
+				if(usernameAttempts > 200)
+				{	
+					errorLabel.setText(COMMUNICATION_ERROR);
+					return;
+				}
 			}
 
 			if(chatClient.getUsernameAccepted())

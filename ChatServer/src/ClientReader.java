@@ -56,8 +56,8 @@ public class ClientReader implements Runnable
 		} 
 		catch (IOException e) 
 		{
+			chatClient.disconnect();
 			System.out.println("An error occurred while attempting to read a chat client socket.");
-			e.printStackTrace();
 		}
 
 		return data;
@@ -169,28 +169,7 @@ public class ClientReader implements Runnable
 	private void handleGlobalMessage()
 	{
 		String username = parsedData[1];
-		String message = "";
-		int size = parsedData.length;
-		
-		for(int i = 2; i < size; i++)
-		{
-			if(i == parsedData.length - 1)
-				message += String.format("%s", parsedData[i]);
-			else
-				message += String.format("%s ", parsedData[i]);
-		}
-		
-		//output formatting?
-		message = String.format("%s: %s\r\n", username, message);
-
-		System.out.println("Adding " + message + " to input.");
-		
-		input.addElement(message);
-	}
-
-	private void handlePrivateMessage()
-	{
-		String username = parsedData[1];
+		String time = parsedData[2];
 		String message = "";
 		int size = parsedData.length;
 		
@@ -202,8 +181,31 @@ public class ClientReader implements Runnable
 				message += String.format("%s ", parsedData[i]);
 		}
 		
+		//output formatting?
+		message = String.format("[%s]%s: %s\r\n", time, username, message);
+
+		System.out.println("Adding " + message + " to input.");
+		
+		input.addElement(message);
+	}
+
+	private void handlePrivateMessage()
+	{
+		String username = parsedData[1];
+		String time = parsedData[3];
+		String message = "";
+		int size = parsedData.length;
+		
+		for(int i = 4; i < size; i++)
+		{
+			if(i == parsedData.length - 1)
+				message += String.format("%s", parsedData[i]);
+			else
+				message += String.format("%s ", parsedData[i]);
+		}
+		
 		//do output format?
-		message = String.format("%s: %s\r\n", username, message);
+		message = String.format("[%s]%s: %s\r\n", time, username, message);
 		
 		input.addElement(message);
 	}

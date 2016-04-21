@@ -68,7 +68,8 @@ public class ChatClient
 			
 			EXECUTOR.execute(clientReader);
 			EXECUTOR.execute(clientWriter);
-			
+
+			this.isUsernameAccepted = null;
 			this.isConnected = true;
 		} 
 		catch (IOException e) 

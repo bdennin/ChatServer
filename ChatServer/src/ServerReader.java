@@ -84,6 +84,10 @@ public class ServerReader implements Runnable
 			{
 				handleData(data);
 			}
+			else
+			{
+				keepAlive = false;
+			}
 		}
 
 		close();

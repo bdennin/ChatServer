@@ -133,14 +133,20 @@ public class ChatConnect extends JPanel implements ActionListener
 				
 				usernameAttempts++;
 				
-				if(usernameAttempts > 200)
+				if(usernameAttempts > 500)
 				{	
-					errorLabel.setText(COMMUNICATION_ERROR);
-					return;
+					break;
 				}
 			}
 
-			if(chatClient.getUsernameAccepted())
+			Boolean outcome = chatClient.getUsernameAccepted();
+			
+			if(usernameAttempts > 500)
+			{
+				errorLabel.setText(COMMUNICATION_ERROR);
+				errorLabel.setVisible(true);
+			}
+			else if(outcome)
 			{
 				outerFrame.setChatClient(chatClient);
 				outerFrame.switchToChat();

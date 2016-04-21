@@ -66,11 +66,11 @@ public class ChatClient
 			this.clientReader = new ClientReader(this, bufferedReader, input, usernames);
 			this.clientWriter = new ClientWriter(this, input, usernames);
 			
-			EXECUTOR.execute(clientReader);
-			EXECUTOR.execute(clientWriter);
-
 			this.isUsernameAccepted = null;
 			this.isConnected = true;
+			
+			EXECUTOR.execute(clientReader);
+			EXECUTOR.execute(clientWriter);
 		} 
 		catch (IOException e) 
 		{

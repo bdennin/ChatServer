@@ -1,3 +1,8 @@
+/*
+ * This class reads data from a client socket until closed.
+ * It handles and responds to that data as well.
+ */
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -16,13 +21,16 @@ import java.util.regex.Pattern;
 
 public class ServerReader implements Runnable
 {	
+	//contains the format of the timestamp appended to each message
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
+	//regex of allowed username characters; only letters, numbers and underscores are accepted
 	private static final String ALLOWED_CHARACTERS = "^[a-zA-Z0-9_]*$";
 	private static final Pattern PATTERN_MATCHER = Pattern.compile(ALLOWED_CHARACTERS);
+	//displayed server greeting on user connect
 	private static final String SERVER_GREETING = "Welcome to the chat server. Enter '/w [username]' to send a private message.";
 
+	//socket and all its objects for reading and writing it
 	private Socket socket;
-	
 	private InputStream serverInput;
 	private InputStreamReader inputReader;
 	private BufferedReader bufferedReader;
@@ -30,18 +38,22 @@ public class ServerReader implements Runnable
 	private OutputStreamWriter outputWriter;
 	private BufferedWriter bufferedWriter;
 
+	//see ChatServer.java
 	private Vector<String> output;
 	private Vector<String> usernames;
 	private ConcurrentHashMap<String, BufferedWriter> userWriterMap;
 
+	//this connections username
 	private String username;
+	//determines if this connection should remain open
 	private boolean keepAlive;
+	//is the username valid?
 	private boolean hasValidUsername;
 	
+	//members for reading and writing data
 	private String[] parsedData;
 	private String packetData;
 	private String broadcastData;
-	
 
 	public ServerReader(Socket socket, Vector<String> output, Vector<String> usernames, ConcurrentHashMap<String, BufferedWriter> userWriterMap)
 	{
@@ -123,8 +135,6 @@ public class ServerReader implements Runnable
 			if(bufferedWriter != null)
 				bufferedWriter.close();
 			
-			System.out.println("User, " + username + ", has disconnected.");
-			
 			if(hasValidUsername)
 			{
 				handleUserDisconnect();
@@ -140,7 +150,6 @@ public class ServerReader implements Runnable
 	private String readSocket()
 	{
 		String data = null;
-		System.out.println("Waiting for data");
 
 		try 
 		{
@@ -201,9 +210,8 @@ public class ServerReader implements Runnable
 	private void handleUsernameRequest()
 	{	
 		this.username = parsedData[1].toLowerCase().trim();
-		
-		System.out.println("Handled username: " + username);
-		
+
+		//if the username is invalid
 		if(usernames.contains(username) || !isUsernameValid(username) || username.length() > 16)
 		{
 			keepAlive = false;
@@ -247,7 +255,7 @@ public class ServerReader implements Runnable
 	private void handlePrivateMessage()
 	{
 		String message = "";
-		String toUser = parsedData[2];
+		String toUser = parsedData[2].toLowerCase();
 		int size = parsedData.length;
 		
 		for(int i = 3; i < size; i++)
@@ -278,9 +286,11 @@ public class ServerReader implements Runnable
 	
 	private void sendData()
 	{
+		System.out.println("Packet data: " + packetData);
+		System.out.println("Broadcast data: " + broadcastData);
+		
 		if(packetData != null)
 		{
-			System.out.println("SEnding read data: " + packetData);
 			try 
 			{
 				bufferedWriter.write(packetData);
@@ -295,7 +305,6 @@ public class ServerReader implements Runnable
 		
 		if(broadcastData != null)
 		{
-			System.out.println("Sending read broadcast data: " + broadcastData);
 			output.add(broadcastData);
 		}
 	}
@@ -324,11 +333,10 @@ public class ServerReader implements Runnable
 		return userList;
 	}
 	
-	private String getTime()
+	public String getTime()
 	{
 		Calendar date = Calendar.getInstance();
 		String timeStamp = DATE_FORMAT.format(date.getTime());
-		
 		
 		return timeStamp; 
 	}

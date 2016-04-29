@@ -1,19 +1,26 @@
+/*
+ * This class writes data in-bound from the server to the chat GUI.
+ */
+
 import java.util.Collections;
 import java.util.Vector;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JLabel;
 import javax.swing.JTextArea;
 
 public class ClientWriter implements Runnable
 {
+	//sleep time between iterations
 	private static final int SLEEP_TIME = 100;
 
+	//this class is passed a chat client so that it can change the clients variables
 	private ChatClient chatClient;
 
+	//See ChatServer
 	private Vector<String> input;
 	private Vector<String> usernames;
 
+	//determines when to relist the usernames in the chat GUI
 	private int numberOfUsernames;
 
 	public ClientWriter(ChatClient chatClient, Vector<String> input, Vector<String> usernames)

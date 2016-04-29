@@ -1,3 +1,8 @@
+/*
+ * This class embodies the client connection to the server.
+ * This class is used to handle all traffic the client uses.
+ */
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -11,23 +16,28 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JTextArea;
 
 public class ChatClient 
 {	
+	//object for executing threads
 	private static final Executor EXECUTOR = Executors.newCachedThreadPool();
 	private static final int PORT = 1337;
 	
-	private Socket socket;
+	//threads for reading data from the server, and writing it to the GUI
 	private ClientReader clientReader;
 	private ClientWriter clientWriter;
 
+	//stored textarea where server content will be displayed
 	private JTextArea chatArea;
+	//area where usernames will be written
 	private JList<String> usernameArea;
+	//model for username area
 	private DefaultListModel<String> usernameModel;
 
+	//socket and all of its reader/writing objects
+	private Socket socket;
 	private InputStream clientInput;
 	private InputStreamReader inputReader;
 	private BufferedReader bufferedReader;
@@ -35,12 +45,17 @@ public class ChatClient
 	private OutputStreamWriter outputWriter;
 	private BufferedWriter bufferedWriter;
 
+	//See ChatServer
 	private Vector<String> input;
 	private Vector<String> usernames;
 
+	//address of server
 	private String serverIP;
+	//client username
 	private String username;
+	//determines if the client is connected to the server
 	private Boolean isConnected;
+	//determines if the username is valid
 	private Boolean isUsernameAccepted;
 
 	public ChatClient(String serverIP, String username)
@@ -87,7 +102,6 @@ public class ChatClient
 		{
 			String packetData = String.format("%d %s\r\n", 0, username.trim());
 
-			System.out.println("Sending data : " + packetData);
 			sendPacketData(packetData);
 		}
 	}
@@ -98,7 +112,6 @@ public class ChatClient
 		{
 			String packetData = String.format("%d %s\r\n", 3, message.trim());
 
-			System.out.println("Sending data : " + packetData);
 			sendPacketData(packetData);
 		}
 	}
@@ -107,10 +120,8 @@ public class ChatClient
 	{		
 		if(isConnected)
 		{
-			System.out.println("private message " + message);
 			String packetData = String.format("%d %s %s %s\r\n", 4, username.trim(), toUsername.trim(), message.trim());
-
-			System.out.println("Sending data : " + packetData);
+			
 			sendPacketData(packetData);
 		}
 	}
@@ -122,8 +133,6 @@ public class ChatClient
 			String packetData = String.format("%d\r\n", 7);
 
 			sendPacketData(packetData);
-
-			System.out.println("Sending data : " + packetData);
 		}
 	}
 

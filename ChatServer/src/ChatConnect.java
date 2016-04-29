@@ -1,3 +1,7 @@
+/*
+ * This class is the visual setup of the connection screen.
+ * This is where the client goes to input data to connect to the server.
+ */
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -111,12 +115,8 @@ public class ChatConnect extends JPanel implements ActionListener
 
 		chatClient = new ChatClient(address, username);
 
-		System.out.println("connecting");
-
 		if(chatClient.isConnected())
 		{
-			System.out.println("Connected.  SEnding username.");
-
 			chatClient.sendUsername();
 			int usernameAttempts = 0;
 			
@@ -150,13 +150,11 @@ public class ChatConnect extends JPanel implements ActionListener
 			{
 				outerFrame.setChatClient(chatClient);
 				outerFrame.switchToChat();
-				System.out.println("user name accepted");
 			}
 			else
 			{
 				errorLabel.setText(INVALID_USERNAME);
 				errorLabel.setVisible(true);
-				System.out.println("user name rejected");
 			}
 		}
 		else

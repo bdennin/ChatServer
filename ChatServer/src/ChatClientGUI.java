@@ -1,3 +1,9 @@
+/*
+ * This class displays the contents of the chat client.
+ * It is only the visible manifestation of the client.
+ * All logic is handled by the ChatClient.
+ */
+
 import java.awt.Dimension;
 
 import javax.swing.JFrame;

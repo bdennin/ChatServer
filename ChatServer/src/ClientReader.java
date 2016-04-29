@@ -1,3 +1,8 @@
+/*
+ * This class handles input obtained from the chat GUI,
+ * formats it, and sends it to the server
+ */
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Vector;
@@ -6,12 +11,16 @@ public class ClientReader implements Runnable
 {
 	private static final String USER_CONNECTED = "has joined the server.";
 	private static final String USER_DISCONNECTED = "has left the server.";
+	//sleep time between iterations
 	private static final int SLEEP_TIME = 100;
 
+	//this class is passed a chat client, so that it can manipulate the chat client
 	private ChatClient chatClient;
 
+	//stream that reads input from the server
 	private BufferedReader bufferedReader;
 
+	//see ChatServer
 	private Vector<String> input;
 	private Vector<String> usernames;
 	private String[] parsedData;
@@ -69,8 +78,6 @@ public class ClientReader implements Runnable
 
 		int commandType = Integer.parseInt(parsedData[0]);
 
-		System.out.println("CLIENT INCOMING DATA: " + parseable);
-		
 		switch(commandType)
 		{
 		case 1:
@@ -129,13 +136,9 @@ public class ClientReader implements Runnable
 
 		String usernames = parsedData[1];
 		String welcome = "";
-		
-		System.out.println("Usernames: " + usernames);
 
 		if(usernames != null)
 		{
-			System.out.println("Username list is not null");
-			
 			usernames = usernames.replaceAll(",", " ");
 			String[] splitUsers = usernames.split(" ");
 			int size = splitUsers.length;
@@ -152,9 +155,6 @@ public class ClientReader implements Runnable
 				welcome += String.format("%s ", parsedData[i]);
 		}
 
-		System.out.println("Welcome: " + welcome);
-		
-		//do welcome formatting?
 		welcome = String.format("%s\r\n", welcome);
 		
 		input.addElement(welcome);
@@ -181,11 +181,8 @@ public class ClientReader implements Runnable
 				message += String.format("%s ", parsedData[i]);
 		}
 		
-		//output formatting?
 		message = String.format("[%s]%s: %s\r\n", time, username, message);
 
-		System.out.println("Adding " + message + " to input.");
-		
 		input.addElement(message);
 	}
 
@@ -204,7 +201,6 @@ public class ClientReader implements Runnable
 				message += String.format("%s ", parsedData[i]);
 		}
 		
-		//do output format?
 		message = String.format("[%s]%s: %s\r\n", time, username, message);
 		
 		input.addElement(message);

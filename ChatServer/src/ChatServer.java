@@ -1,7 +1,6 @@
-/**
- * This class listens for HTML requests at port 2880
- * 
- * @author Greg Gagne, Brandon Denning
+/*
+ * This class handles all incoming server traffic
+ * and splits each connection into its own thread.
  */
 
 import java.io.BufferedWriter;
@@ -11,21 +10,25 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class ChatServer 
 {
+	//object that controls threads
 	private static final Executor EXECUTOR = Executors.newCachedThreadPool();
 	private static final int PORT = 1337;
 	
 	private ServerSocket serverSocket;
+	//thread that handles client-bound traffic
 	private ServerWriter chatWriter;
 
+	//contains out-bound strings
 	private Vector<String> output;
+	//list of connected usernames
 	private Vector<String> usernames;
+	//map that contains a username and an object to write to that username's socket
 	private ConcurrentHashMap<String, BufferedWriter> userWriterMap;
 
-	public ChatServer(int port)
+	public ChatServer()
 	{
 		this.output = new Vector<String>();	
 		this.usernames = new Vector<String>();
@@ -40,20 +43,21 @@ public class ChatServer
 	
 	public static void main(String[] args) throws IOException
 	{	
-		ChatServer chatServer = new ChatServer(1337);
+		ChatServer chatServer = new ChatServer();
 	}
 
 	private void start()
 	{
 		try 
 		{
+			//create socket at 1337
 			serverSocket = new ServerSocket(PORT);
 
+			//run forever
 			while(true)
 			{	
+				//create a thread
 				ServerReader connection = new ServerReader(serverSocket.accept(), output, usernames, userWriterMap);
-
-				System.out.println("Client connected");
 
 				EXECUTOR.execute(connection);
 			}

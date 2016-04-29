@@ -1,17 +1,25 @@
+/*
+ * This class handles all data that needs to be broadcast to 
+ * sockets connected to the server.
+ */
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentHashMap.KeySetView;
 
 public class ServerWriter implements Runnable
 {
+	//message displayed when a client requests a user that is not found
 	private static final String USER_NOT_FOUND = "User not online.";
+	//time between iterations in MS
 	private static final int SLEEP_TIME = 100;
 
+	//see ChatServer
 	private Vector<String> output;
 	private ConcurrentHashMap<String, BufferedWriter> userWriterMap;
 
+	//member for parsing string
 	private String[] parsedData;
 
 	public ServerWriter(Vector<String> output, ConcurrentHashMap<String, BufferedWriter> userWriterMap)
@@ -44,7 +52,6 @@ public class ServerWriter implements Runnable
 		for(int i = 0; i < size; i++)
 		{
 			String message = output.elementAt(i);
-			System.out.println("Handling server output: " + message);
 			parsedData = message.split(" ");
 
 			int commandType = Integer.parseInt(parsedData[0]);
@@ -95,14 +102,13 @@ public class ServerWriter implements Runnable
 	{
 		String fromUser = parsedData[1];
 		String toUser = parsedData[2];
+		String time = parsedData[3];
 		
 		BufferedWriter sender = userWriterMap.get(fromUser);
 		BufferedWriter receiver = userWriterMap.get(toUser);
 		
 		try 
-		{
-			System.out.printf("from user:  %s to User:  %s", fromUser, toUser);
-			
+		{		
 			if(receiver != null)
 			{
 				if(fromUser.equals(toUser))
@@ -121,7 +127,7 @@ public class ServerWriter implements Runnable
 			}
 			else
 			{
-				String offline = String.format("%d %s %s %s\r\n", 6, fromUser, toUser, USER_NOT_FOUND);
+				String offline = String.format("%d %s %s %s %s\r\n", 6, fromUser, toUser, time, USER_NOT_FOUND);
 				
 				sender.write(offline);
 				sender.flush();
@@ -146,11 +152,6 @@ public class ServerWriter implements Runnable
 
 	private void broadcast(String message)
 	{
-		int size = userWriterMap.size();
-
-		System.out.println("broadcasted data " + message);
-		System.out.println("NUmber of connections: " + size);
-		
 		for(BufferedWriter chatWriter : userWriterMap.values())
 		{
 			try 
